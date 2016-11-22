@@ -2,3 +2,7 @@
 /etc/known_hosts
 /bin/
 /include/
+/.vault_password_file
+/.vagrant/
+/etc/ploy.conf
+
