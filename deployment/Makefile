@@ -1,6 +1,6 @@
 <<<<<<< HEAD
 target = pine
-boot_ip = 192.168.2.2
+boot_ip = 
 install: bin/ploy
 
 bin/ploy bin/ploy-ssh: bin/pip requirements.txt
