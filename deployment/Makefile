@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-target = pine
+target = pi3hub
 boot_ip = 
 authorized_keys = authorized_keys
 install: bin/ploy
