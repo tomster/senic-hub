@@ -40,12 +40,21 @@ def bootstrap(boot_ip=None, authorized_keys='authorized_keys', static_ip=True):
                 'echo """%s""" >> /etc/dhcpcd.conf' %
                 eth_interface.format(**AV))
         # enable passwordless root login via ssh
-        fab.sudo("""mkdir /root/.ssh""")
-        fab.sudo("""chmod 700 /root/.ssh""")
-        fab.put(
-            local_path=authorized_keys,
-            remote_path='/root/.ssh/authorized_keys',
-            use_sudo=True,
-            mode='0700')
-        fab.sudo("""chown root:root /root/.ssh/authorized_keys""")
+        from fabric.contrib.files import exists
+        if not exists('/root/.ssh', use_sudo=True):
+            fab.sudo("""mkdir /root/.ssh""")
+            fab.sudo("""chmod 700 /root/.ssh""")
+        if not exists('/root/.ssh/authorized_keys', use_sudo=True):
+            fab.put(
+                local_path=authorized_keys,
+                remote_path='/root/.ssh/authorized_keys',
+                use_sudo=True,
+                mode='0700')
+            fab.sudo("""chown root:root /root/.ssh/authorized_keys""")
+        fab.sudo(
+            """echo 'PermitRootLogin without-password' > /etc/ssh/sshd_config""")
+    fab.sudo("""/usr/local/sbin/resize_rootfs.sh""")
+    fab.sudo("""/usr/local/sbin/pine64_update_uboot.sh""")
+    fab.sudo("""/usr/local/sbin/pine64_update_kernel.sh""")
+    fab.sudo("""apt-get install python -y""")
     fab.reboot()
