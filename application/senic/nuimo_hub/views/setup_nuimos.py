@@ -6,7 +6,7 @@ from ..config import path as service_path
 
 nuimo_setup = Service(
     name='nuimo_setup',
-    path=path('setup/nuimo'),
+    path=service_path('setup/nuimos'),
     renderer='json',
     accept='application/json')
 
