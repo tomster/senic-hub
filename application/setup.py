@@ -81,5 +81,6 @@ setup(
         scan_wifi = senic.nuimo_hub.commands:scan_wifi
         enter_wifi_setup = senic.nuimo_hub.commands:enter_wifi_setup
         join_wifi = senic.nuimo_hub.commands:join_wifi
+        setup_nuimo = senic.nuimo_hub.commands:setup_nuimo
     """,
 )

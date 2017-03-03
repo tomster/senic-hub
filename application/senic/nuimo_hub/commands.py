@@ -10,6 +10,7 @@ from .subprocess_run import run
 import wifi
 from pyramid.paster import get_app
 
+from . import nuimo_setup
 
 DEFAULT_IFACE = 'wlan0'
 IFACES_AVAILABLE = '/etc/network/interfaces.available/{}'
@@ -135,3 +136,11 @@ def join_wifi(ssid, password, device=DEFAULT_IFACE):
         with open(ENTER_SETUP_FLAG, 'w') as flag:
             flag.write('FAILED')
         exit(1)
+
+
+@click.command(help='join a given wifi network (requires root privileges)')
+@click.argument('adapter')
+def setup_nuimo(adapter):
+    click.echo("Discovering and connecting Nuimo controller using Bluetooth adapter %s" % adapter)
+    mac_address = nuimo_setup.SetupManager(adapter_name=adapter).discover_and_connect_controller()
+    click.echo("Nuimo controller %s set up" % mac_address)
