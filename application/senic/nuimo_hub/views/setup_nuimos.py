@@ -30,7 +30,7 @@ def bootstrap_nuimos(request):
         '-o', request.registry.settings['nuimo_mac_address_filepath'],
         'hci0'
     ])
-    return {}
+    return get_nuimo_mac_address(request)
 
 
 @connected_nuimos.get()
