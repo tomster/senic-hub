@@ -138,9 +138,15 @@ def join_wifi(ssid, password, device=DEFAULT_IFACE):
         exit(1)
 
 
-@click.command(help='join a given wifi network (requires root privileges)')
+@click.command(help="""Discover all nearby Nuimo controllers and connect to the first possible using
+                       the given Bluetooth adapter. Writes its MAC address into a file.""")
+@click.option('--config', '-c', default='development.ini', type=click.Path(exists=True), help="App configuration file")
 @click.argument('adapter')
-def setup_nuimo(adapter):
+def setup_nuimo(config, adapter):
+    # TODO: We need to make sure that the file is only present when necessary, otherwise we deliver old content
     click.echo("Discovering and connecting Nuimo controller using Bluetooth adapter %s" % adapter)
     mac_address = nuimo_setup.SetupManager(adapter_name=adapter).discover_and_connect_controller()
     click.echo("Nuimo controller %s set up" % mac_address)
+    app = get_app(abspath(config))
+    with open(app.registry.settings['nuimo_mac_address_filepath'], 'w') as nuimo_config_file:
+        nuimo_config_file.write(mac_address + '\n')
