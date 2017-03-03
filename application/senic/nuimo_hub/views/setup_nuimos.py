@@ -5,9 +5,9 @@ from ..config import path as service_path
 from ..subprocess_run import run
 
 
-nuimo_setup_starter = Service(
+nuimo_bootstrap = Service(
     name='start_nuimo_setup',
-    path=service_path('setup/nuimos/start'),
+    path=service_path('setup/nuimos/bootstrap'),
     renderer='json',
     accept='application/json')
 
@@ -20,9 +20,9 @@ connected_nuimos = Service(
 
 
 # TODO: Remove get()
-@nuimo_setup_starter.get()
-@nuimo_setup_starter.post(renderer='json')
-def start_nuimo_setup(request):
+@nuimo_bootstrap.get()
+@nuimo_bootstrap.post(renderer='json')
+def bootstrap_nuimos(request):
     # TODO: Collect Bluetooth adapter name from some settings
     run([
         'sudo',
