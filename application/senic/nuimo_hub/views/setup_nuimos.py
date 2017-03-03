@@ -23,13 +23,11 @@ connected_nuimos = Service(
 @nuimo_setup_starter.get()
 @nuimo_setup_starter.post(renderer='json')
 def start_nuimo_setup(request):
-    # TODO: Collect config file from some settings
     # TODO: Collect Bluetooth adapter name from some settings
-    # TODO: Should be started via supervisorctl to avoid multiple instances running
     run([
         'sudo',
         path.join(request.registry.settings['fs_bin'], 'setup_nuimo'),
-        '-c', '/srv/nuimo_hub/production.ini',
+        '-o', request.registry.settings['nuimo_mac_address_filepath'],
         'hci0'
     ])
     return {}
