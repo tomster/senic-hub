@@ -1,8 +1,8 @@
 import nuimo
-import threading
 
 
 class SetupManager(nuimo.ControllerManagerListener):
+
     def __init__(self, adapter_name):
         self._manager = nuimo.ControllerManager(adapter_name)
         self._manager.listener = self
@@ -29,6 +29,7 @@ class SetupManager(nuimo.ControllerManagerListener):
 
 
 class _SetupControllerListener(nuimo.ControllerListener):
+
     def __init__(self, manager, controller):
         self.manager = manager
         self.controller = controller
