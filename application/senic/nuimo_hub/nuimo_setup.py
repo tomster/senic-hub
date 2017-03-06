@@ -1,7 +1,7 @@
 import nuimo
 
 
-class SetupManager(nuimo.ControllerManagerListener):
+class SetupManager(nuimo.ControllerManagerListener):  # pragma: no cover
 
     def __init__(self, adapter_name):
         self._manager = nuimo.ControllerManager(adapter_name)
@@ -29,7 +29,7 @@ class SetupManager(nuimo.ControllerManagerListener):
         self._manager.stop()
 
 
-class _SetupControllerListener(nuimo.ControllerListener):
+class _SetupControllerListener(nuimo.ControllerListener):  # pragma: no cover
 
     def __init__(self, manager, controller):
         self.manager = manager
