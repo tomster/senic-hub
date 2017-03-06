@@ -22,7 +22,7 @@ connected_nuimos = Service(
 # TODO: Remove get()
 @nuimo_bootstrap.get()
 @nuimo_bootstrap.post(renderer='json')
-def bootstrap_nuimos(request):
+def bootstrap_nuimos(request):  # pragma: no cover,
     # TODO: Collect Bluetooth adapter name from some settings
     run([
         'sudo',
