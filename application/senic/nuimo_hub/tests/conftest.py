@@ -36,6 +36,7 @@ def settings():
         'crypto_settings_datafile': asset_path('testing.yml.aes'),
         'crypto_settings_keyfile': asset_path('testing.key'),
         'fs_device_list': asset_path('device_list.json'),
+        'nuimo_mac_address_filepath': asset_path('nuimo_mac_address.txt'),
     }
 
 
