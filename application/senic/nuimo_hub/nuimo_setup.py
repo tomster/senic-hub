@@ -11,7 +11,8 @@ class SetupManager(nuimo.ControllerManagerListener):
     def discover_and_connect_controller(self):
         # TODO: If there's a connected Nuimo, take it and don't run discovery
         self._manager.start_discovery()
-        # Start D-Bus event loop. Will be stopped when a controller was connected (see below)
+        # Start D-Bus event loop. This call is blocking until the loop gets stopped.
+        # Will be stopped when a controller was connected (see below).
         self._manager.run()
         if self._controller:
             return self._controller.mac_address
