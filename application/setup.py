@@ -38,7 +38,7 @@ setup(
         'click',
         'colander',
         'cornice<2.0',
-        'nuimo>=0.2.2',
+        'nuimo>=0.2.3',
         'pyramid',
         'pyramid_tm',
         'pytz',
