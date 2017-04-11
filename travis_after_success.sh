@@ -12,7 +12,7 @@ if  [ "$TRAVIS_PULL_REQUEST" = "false" ] ; then
     if [ "$TRAVIS_BRANCH" = "master" ] || [ "$REPO_OWNER" != "getsenic" ]; then
         devpi use "https://pypi.senic.com/$REPO_OWNER/master"
         devpi login $devpi_user --password="$devpi_password"
-        devpi upload --no-vcs --with-docs --formats bdist_wheel
+        make upload
     else
         echo "Not building for branch '$TRAVIS_BRANCH'"
     fi
