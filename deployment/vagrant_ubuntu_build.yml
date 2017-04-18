@@ -25,4 +25,7 @@
       notify: restart ssh
     - name: configure SSH key for root
       become: true
+      raw: mkdir -p /root/.ssh
+    - name: configure SSH key for root
+      become: true
       raw: echo "{{build_user_key}}" > /root/.ssh/authorized_keys
