@@ -16,6 +16,7 @@
     - curl
     - vim-nox
     - python3
+    - screen
 
 - name: create build user
   become: true
