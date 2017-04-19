@@ -17,6 +17,50 @@
     - vim-nox
     - python3
 
+- name: create build user
+  become: true
+  user:
+    name: "{{build_user}}"
+    append: yes
+    createhome: yes
+    shell: /bin/bash
+
+- name: configure shell
+  become: true
+  become_user: "{{item.name}}"
+  copy:
+    dest: "{{item.path}}/.bash_aliases"
+    owner: "{{item.name}}"
+    mode: "0700"
+    content: |
+      export EDITOR=vim
+      alias ll="ls -la"
+      set +o allexport
+      unset MANPATH
+      alias g="git"
+      export LC_ALL=C.UTF-8
+      export LANG=C.UTF-8
+
+      # prompt
+      function parse_git_branch {
+        ref=$(git-symbolic-ref HEAD 2> /dev/null) || return
+        echo "("${ref#refs/heads/}")"
+      }
+
+      export GIT_PS1_SHOWDIRTYSTATE=1
+      export GIT_PS1_SHOWBRANCHREMOTE=1
+      export GIT_PS1_SHOWUPSTREAM='auto'
+      PS1='# \[\e[0;33;33m\]\u@\H\[\033[0;32m\]`__git_ps1` \[\e[0;33;33m\]\w \n\[\e[0m\]# '
+      # Make it also work for the 'g' alias of the git command
+      complete -o bashdefault -o default -o nospace -F _git g 2>/dev/null \
+        || complete -o default -o nospace -F _git g
+
+  with_items:
+    - name: "{{build_user}}"
+      path: "/home/{{build_user}}"
+    - name: root
+      path: /root
+
 - name: configure git
   become: true
   become_user: "{{build_user}}"
@@ -72,3 +116,66 @@
       lol = log --graph --decorate --pretty=oneline --abbrev-commit
       lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
       pure = pull --rebase
+
+- name: install git-repo tool
+  get_url:
+    url: https://storage.googleapis.com/git-repo-downloads/repo
+    dest: /usr/local/bin/repo
+    owner: root
+    mode: 0755
+
+- name: ensure ssh config
+  become: true
+  become_user: "{{build_user}}"
+  file:
+    dest: "/home/{{build_user}}/.ssh"
+    mode: "0700"
+    owner: "{{build_user}}"
+    group: "{{build_user}}"
+    state: directory
+  tags: gitco
+
+- name: enable git access
+  become: true
+  become_user: "{{build_user}}"
+  copy:
+    src: github_deploy_rsa
+    dest: "/home/{{build_user}}/.ssh/id_rsa"
+    mode: "0600"
+    owner: "{{build_user}}"
+    group: "{{build_user}}"
+  tags: gitco
+
+- name: install free-electrons fingerprints
+  copy:
+    src: known_hosts
+    dest: "/home/{{build_user}}/.ssh/known_hosts"
+    owner: "{{build_user}}"
+    group: "{{build_user}}"
+    mode: 0644
+
+- name: create build directory
+  file:
+    dest: "{{build_dir}}"
+    owner: "{{build_user}}"
+    group: "{{build_user}}"
+    mode: "0755"
+    state: directory
+  become: yes
+
+- name: initialise git-repo tool
+  become: true
+  become_user: "{{build_user}}"
+  command: "/usr/local/bin/repo init -u git@tau.free-electrons.com:senic/manifests"
+  args:
+    chdir: "{{build_dir}}"
+    creates: "{{build_dir}}/.repo/manifest.xml"
+
+- name: sync repo
+  become: true
+  become_user: "{{build_user}}"
+  command: "/usr/local/bin/repo sync -j3"
+  args:
+    chdir: "{{build_dir}}"
+    creates: "{{build_dir}}/meta-senic/.git/config"
+
