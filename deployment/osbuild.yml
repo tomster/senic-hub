@@ -1,0 +1,24 @@
+- hosts: plain-osbuild
+  pre_tasks:
+  - name: format data volume
+    filesystem:
+      fstype: ext4
+      dev: /dev/disk/by-id/scsi-0DO_Volume_volume-data-osbuild
+
+  - name: ensure data mountpoint
+    file:
+      dest: /mnt/data
+      state: directory
+
+  - name: mount data volume
+    mount:
+      name: /mnt/data
+      src: /dev/disk/by-id/scsi-0DO_Volume_volume-data-osbuild
+      fstype: ext4
+      opts: discard,defaults
+      state: present
+
+  roles:
+    - { role: osbuild, tags: osbuild, build_dir: /mnt/data/senic-os }
+  #tasks:
+
