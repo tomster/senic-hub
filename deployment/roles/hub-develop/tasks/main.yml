@@ -79,10 +79,6 @@
     key: "{{build_user_key}}"
   when: build_user_key is defined
 
-- include: vim.yml
-  when: configure_vim
-  tags: vim
-
 - name: install rsync
   apt:
     name: "{{item}}"
