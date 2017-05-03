@@ -10,7 +10,7 @@ venv/bin/python$(python_version) venv/bin/pip venv/bin/pserve venv/bin/py.test v
 	tox -e develop --notest
 
 upload: setup.py venv/bin/devpi frontend
-	PATH=${PWD}/venv/bin:${PATH} venv/bin/devpi upload --no-vcs --with-docs --formats bdist_wheel,sdist
+	PATH:=${PWD}/venv/bin:${PATH} venv/bin/devpi upload --no-vcs --with-docs --formats bdist_wheel,sdist
 
 frontend:
 	$(MAKE) -C senic_hub/frontend
