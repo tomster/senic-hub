@@ -13,7 +13,7 @@ upload: setup.py venv/bin/devpi frontend
 	PATH:=${PWD}/venv/bin:${PATH} venv/bin/devpi upload --no-vcs --with-docs --formats bdist_wheel,sdist
 
 frontend:
-	$(MAKE) -C senic_hub/frontend
+	$(MAKE) -C senic_hub/frontend NODE_BIN=$(NODE_BIN)
 
 docs:
 	$(MAKE) -C docs/

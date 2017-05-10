@@ -17,7 +17,7 @@ import yaml
 
 from . import supervisor
 
-from .device_discovery import PhilipsHueBridgeApiClient, discover_devices, read_json
+from .device_discovery import PhilipsHueBridgeApiClient, discover_devices
 
 
 DEFAULT_SCAN_INTERVAL_SECONDS = 1 * 60  # 1 minute
@@ -42,7 +42,7 @@ def create_configuration_files_and_restart_apps_(settings):
     with open(hass_config_file_path, 'w') as f:
         yaml.dump(generate_hass_configuration(devices), f, default_flow_style=False)
 
-    supervisor.restart_program('homeassistant')
+    # supervisor.restart_program('homeassistant')
 
     # generate nuimo app config & restart supervisor app
     nuimo_controller_mac_address_file_path = settings['nuimo_mac_address_filepath']
@@ -97,16 +97,16 @@ def generate_nuimo_configuration(devices, nuimo_controller_mac_address, bluetoot
     authenticated_devices = [d for d in devices if d["authenticated"]]
     for index, device in enumerate(authenticated_devices):
         section_name = '{}-{}'.format(device['type'], index)
-        component = {
-            'philips_hue': 'PhilipsHue',
-            'sonos': 'Sonos',
-        }[device['type']]
-
         config[section_name] = {
-            'name': section_name,
-            'component': component,
-            'entity_id': device["ha_entity_id"],
+            'name': device['name'],
+            'component': device['type'],
+            'ip_address': device['ip'],
         }
+
+        if device['type'] == 'philips_hue':
+            config[section_name]['username'] = device['extra']['username']
+            config[section_name]['lights'] = ', '.join(device['extra']['lights'].keys())
+
     return config
 
 
@@ -138,8 +138,8 @@ def device_discovery(config):
         now = datetime.utcnow()
         devices = discover_devices(devices, now)
 
-        add_authentication_status(devices, app.registry.settings)
-        add_homeassistant_entity_ids(devices)
+        add_authentication_status(devices)
+        add_device_details(devices)
 
         fd, filename = mkstemp(dir=app.registry.settings['homeassistant_data_path'])
         with open(fd, "w") as f:
@@ -151,7 +151,7 @@ def device_discovery(config):
         time.sleep(scan_interval_seconds)
 
 
-def add_authentication_status(devices, settings):
+def add_authentication_status(devices):
     for device in devices:
         if not device["authenticationRequired"]:
             device["authenticated"] = True
@@ -160,22 +160,12 @@ def add_authentication_status(devices, settings):
         if device["type"] != "philips_hue":
             continue
 
-        philips_hue_bridge_config_path = os.path.join(
-            settings["homeassistant_data_path"],
-            "{}.conf".format(device["id"]),
-        )
-        config = read_json(philips_hue_bridge_config_path, {})
-        username = config.get(device["ip"], {}).get("username")
-
-        api = PhilipsHueBridgeApiClient(device["ip"], username)
+        api = PhilipsHueBridgeApiClient(device["ip"], device['extra'].get('username'))
         device["authenticated"] = api.is_authenticated()
 
 
-def add_homeassistant_entity_ids(devices):
-    for device in devices:
-        if device["type"] == "philips_hue":
-            # TODO group has to be created manually for now
-            device["ha_entity_id"] = "light.senic_hub_demo"
-        else:
-            room_name = device["extra"]["roomName"]
-            device["ha_entity_id"] = "media_player.{}".format(room_name.replace(" ", "_").lower())
+def add_device_details(devices):
+    authenticated_bridges = [d for d in devices if d['type'] == 'philips_hue' and d['authenticated']]
+    for bridge in authenticated_bridges:
+        api = PhilipsHueBridgeApiClient(bridge["ip"], bridge['extra']['username'])
+        bridge['extra']['lights'] = api.get_lights()
