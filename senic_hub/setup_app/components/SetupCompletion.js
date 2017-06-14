@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   View,
@@ -7,11 +8,15 @@ import {
 
 import { Button } from 'react-native-elements';
 import Screen from './Screen'
-import { API_URL } from '../Config';
+import Settings from '../Settings'
 
 export default class SetupCompletion extends Screen {
   constructor(props) {
     super(props)
+
+    this.state = {
+      configured: false,
+    }
 
     this.setTitle("Completion")
   }
@@ -19,27 +24,44 @@ export default class SetupCompletion extends Screen {
   render() {
     return (
       <View style={styles.container}>
-        <View>
-          <Text style={styles.title}>You're all set</Text>
-          <Text style={styles.title}>Your smart home is now ready to use</Text>
-        </View>
-
-        <View>
-          <Button color={'#000'} backgroundColor={'#fff'} title="Watch tutorial" />
-        </View>
+        {this._renderContent()}
 
         <View>
           <Button
+            disabled={!this.state.configured}
             buttonStyle={styles.button}
-            onPress={() => this.pushScreen('app.nuimoComponents')}
+            onPress={() => this.resetTo('app.nuimoComponents')}
             title="Done" />
         </View>
       </View>
     );
   }
 
+  _renderContent() {
+    if (this.state.configured) {
+      return (
+        <View>
+          <Text style={styles.title}>You're all set</Text>
+          <Text style={styles.title}>Your smart home is now ready to use</Text>
+        </View>
+      )
+    }
+    else {
+      return (
+        <ActivityIndicator />
+      )
+    }
+  }
+
   didAppear() {
-    fetch(API_URL + '/-/setup/config', {method: 'POST'})
+    fetch(Settings.HUB_API_URL + 'setup/config', {method: 'POST'})
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Request failed: ' + JSON.stringify(response))
+        }
+        this.setState({configured: true})
+      })
+      .catch(error => alert(error))
   }
 }
 

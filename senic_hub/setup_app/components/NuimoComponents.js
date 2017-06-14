@@ -1,8 +1,8 @@
 import React from 'react';
 import { FlatList } from 'react-native';
-import { Button, List, ListItem } from 'react-native-elements';
+import { List, ListItem } from 'react-native-elements';
 import Screen from './Screen'
-import { API_URL } from '../Config';
+import Settings from '../Settings'
 
 export default class NuimoComponents extends Screen {
   constructor(props) {
@@ -18,7 +18,16 @@ export default class NuimoComponents extends Screen {
         title: "Add",
         id: 'add',
         onPress: () => this.showModal('app.addComponent')
-      }
+      },
+      {
+        title: 'Setup',
+        id: 'reset',
+        onPress: () => {
+          // Only useful for development to restart the onboarding
+          Settings.resetHubApiUrl()
+            .then(() => this.resetTo('setup.welcome'))
+        }
+      },
     ])
   }
 
@@ -27,17 +36,17 @@ export default class NuimoComponents extends Screen {
   }
 
   fetchComponents() {
-    fetch(API_URL + '/-/nuimos/0/components')
+    fetch(Settings.HUB_API_URL + 'nuimos/0/components')
       .then((response) => {
-        if (response.ok) {
-          return response.json()
+        if (!response.ok) {
+          throw new Error('Request failed: ' + JSON.stringify(response))
         }
-        throw new Error('Request failed: ' + JSON.stringify(response))
+        return response.json()
       })
       .then((components) => {
         this.setState({ components: components.components })
       })
-      .catch((error) => alert(error))
+      .catch((error) => console.error(error))
   }
 
   render() {
@@ -45,9 +54,12 @@ export default class NuimoComponents extends Screen {
       <List>
         <FlatList
           data={this.state.components}
-          renderItem={({item}) => <ListItem
-            title={item.type}
-            onPress={() => this.pushScreen('app.deviceSelection', {component: item})} />
+          renderItem={({item}) =>
+            <ListItem
+              title={item.type}
+              onPress={() => {
+                this.pushScreen('app.deviceSelection', {component: item})
+              }} />
           }
           keyExtractor={(component) => component.id}
         />

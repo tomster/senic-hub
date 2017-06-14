@@ -18,9 +18,8 @@
     owner: root
     mode: "0644"
   with_items:
-    - scan_wifi
-    - wifi_setup
     - device_discovery
     - nuimo_app
+    - bluenet
 #  notify: reload supervisord
   tags: wifi

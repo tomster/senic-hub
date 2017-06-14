@@ -16,7 +16,8 @@ export default class Screen extends Component {
     function makeButtons(buttons) {
       return buttons.map(button => ({
         id: button.id,
-        title: button.title
+        title: button.title,
+        disabled: button.disabled || false,
       }))
     }
 
@@ -78,6 +79,10 @@ export default class Screen extends Component {
         callback()
         break
     }
+  }
+
+  resetTo(screen) {
+    this.props.navigator.resetTo({screen: screen})
   }
 
   willAppear() {}
